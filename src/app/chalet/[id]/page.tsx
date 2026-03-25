@@ -6,6 +6,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { DetailShell } from "@/components/app-shell";
 import { useI18n } from "@/lib/i18n";
+import { useTheme } from "@/lib/theme";
 import { getChaletById } from "@/lib/data";
 import { calculateStay, formatDate } from "@/lib/pricing";
 import { Calendar } from "@/components/calendar";
@@ -23,6 +24,8 @@ import {
   PoolIcon,
   MinusIcon,
   PlusIcon,
+  SunIcon,
+  MoonIcon,
   getAmenityIcon,
   getRuleIcon,
 } from "@/components/icons";
@@ -196,6 +199,7 @@ function GuestSelector({ max, value, onChange }: { max: number; value: number; o
 
 function ChaletDetailContent({ id }: { id: string }) {
   const { locale, t, toggleLocale } = useI18n();
+  const { theme, toggleTheme } = useTheme();
   const router = useRouter();
   const { showToast } = useToast();
   const chalet = getChaletById(id);
@@ -278,6 +282,9 @@ function ChaletDetailContent({ id }: { id: string }) {
           <span className="text-sm font-medium">{t("chalet.back")}</span>
         </Link>
         <div className="flex items-center gap-1">
+          <button onClick={toggleTheme} className="w-9 h-9 rounded-full flex items-center justify-center text-brand-charcoal dark:text-brand-ivory hover:text-brand-gold hover:bg-brand-gold/5 transition-colors" aria-label="Toggle theme">
+            {theme === "dark" ? <SunIcon className="w-[18px] h-[18px]" /> : <MoonIcon className="w-[18px] h-[18px]" />}
+          </button>
           <button onClick={toggleLocale} className="text-[10px] font-semibold tracking-wider border border-brand-gold/30 rounded-full px-3 py-1.5 text-brand-charcoal dark:text-brand-ivory hover:border-brand-gold transition-colors">
             {t("nav.langToggle")}
           </button>

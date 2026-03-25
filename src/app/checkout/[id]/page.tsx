@@ -7,8 +7,9 @@ import { CheckoutShell } from "@/components/app-shell";
 import { useI18n } from "@/lib/i18n";
 import { getChaletById } from "@/lib/data";
 import { calculateStay, formatDate } from "@/lib/pricing";
+import { useTheme } from "@/lib/theme";
 import { FadeIn, motion, AnimatePresence } from "@/components/motion";
-import { ChevronLeftIcon } from "@/components/icons";
+import { ChevronLeftIcon, SunIcon, MoonIcon } from "@/components/icons";
 
 const COUNTRY_CODES = [
   { flag: "\uD83C\uDDF0\uD83C\uDDFC", code: "+965" },
@@ -92,6 +93,7 @@ function OtpInput({ length = 6, value, onChange }: { length?: number; value: str
 
 function CheckoutContent({ id }: { id: string }) {
   const { t, locale } = useI18n();
+  const { theme, toggleTheme } = useTheme();
   const searchParams = useSearchParams();
   const chalet = getChaletById(id);
 
@@ -119,11 +121,14 @@ function CheckoutContent({ id }: { id: string }) {
     <div className="min-h-screen flex flex-col lg:flex-row">
       {/* Left side — form */}
       <div className="flex-1 lg:max-w-[55%]">
-        <div className="sticky top-0 z-40 bg-brand-cream/95 dark:bg-dark-bg/95 backdrop-blur-xl border-b border-brand-border dark:border-dark-border px-5 py-3">
+        <div className="sticky top-0 z-40 bg-brand-cream/95 dark:bg-dark-bg/95 backdrop-blur-xl border-b border-brand-border dark:border-dark-border px-5 py-3 flex items-center justify-between">
           <Link href={`/chalet/${id}`} className="flex items-center gap-2 text-sm text-brand-charcoal dark:text-brand-ivory hover:text-brand-gold transition-colors">
             <ChevronLeftIcon className="w-5 h-5" />
             <span>{t("chalet.back")}</span>
           </Link>
+          <button onClick={toggleTheme} className="w-9 h-9 rounded-full flex items-center justify-center text-brand-charcoal dark:text-brand-ivory hover:text-brand-gold hover:bg-brand-gold/5 transition-colors" aria-label="Toggle theme">
+            {theme === "dark" ? <SunIcon className="w-[18px] h-[18px]" /> : <MoonIcon className="w-[18px] h-[18px]" />}
+          </button>
         </div>
 
         <div className="max-w-md mx-auto px-6 py-4">

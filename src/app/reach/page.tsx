@@ -5,7 +5,7 @@ import { MinimalShell } from "@/components/app-shell";
 import { useI18n } from "@/lib/i18n";
 import { useTheme } from "@/lib/theme";
 import { FadeIn, StaggerChildren, StaggerItem } from "@/components/motion";
-import { WhatsAppIcon, InstagramIcon, PhoneIcon, ExternalLinkIcon, SunIcon, MoonIcon } from "@/components/icons";
+import { WhatsAppIcon, InstagramIcon, PhoneIcon, ExternalLinkIcon, SunIcon, MoonIcon, ChevronLeftIcon } from "@/components/icons";
 
 function ReachContent() {
   const { t, locale, toggleLocale } = useI18n();
@@ -45,14 +45,20 @@ function ReachContent() {
 
       {/* Right — contact info */}
       <div className="flex-1 bg-brand-cream dark:bg-dark-bg px-6 md:px-12 py-12 md:py-16 flex flex-col justify-center relative">
-        {/* Top controls */}
-        <div className="absolute top-6 end-6 flex items-center gap-2">
-          <button onClick={toggleTheme} className="w-9 h-9 rounded-full flex items-center justify-center text-brand-charcoal dark:text-brand-ivory hover:bg-brand-gold/5 transition-colors" aria-label="Toggle theme">
-            {theme === "dark" ? <SunIcon className="w-[18px] h-[18px]" /> : <MoonIcon className="w-[18px] h-[18px]" />}
-          </button>
-          <button onClick={toggleLocale} className="text-[10px] font-semibold tracking-wider border border-brand-gold/30 rounded-full px-3.5 py-1.5 text-brand-charcoal dark:text-brand-ivory hover:border-brand-gold transition-colors">
-            {t("nav.langToggle")}
-          </button>
+        {/* Top navbar */}
+        <div className="absolute top-0 start-0 end-0 flex items-center justify-between px-5 py-4">
+          <Link href="/" className="flex items-center gap-2 text-sm text-brand-charcoal dark:text-brand-ivory hover:text-brand-gold transition-colors">
+            <ChevronLeftIcon className="w-5 h-5" />
+            <span className="font-medium">{t("manage.backHome")}</span>
+          </Link>
+          <div className="flex items-center gap-2">
+            <button onClick={toggleTheme} className="w-9 h-9 rounded-full flex items-center justify-center text-brand-charcoal dark:text-brand-ivory hover:text-brand-gold hover:bg-brand-gold/5 transition-colors" aria-label="Toggle theme">
+              {theme === "dark" ? <SunIcon className="w-[18px] h-[18px]" /> : <MoonIcon className="w-[18px] h-[18px]" />}
+            </button>
+            <button onClick={toggleLocale} className="text-[10px] font-semibold tracking-wider border border-brand-gold/30 rounded-full px-3.5 py-1.5 text-brand-charcoal dark:text-brand-ivory hover:border-brand-gold transition-colors">
+              {t("nav.langToggle")}
+            </button>
+          </div>
         </div>
 
         <div className="max-w-sm mx-auto w-full">
