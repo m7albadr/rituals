@@ -14,12 +14,14 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_US",
     alternateLocale: "ar_KW",
+    siteName: "Rituals",
   },
   twitter: {
     card: "summary_large_image",
     title: "Luxury Chalets in Kuwait | Rituals",
     description:
       "Book luxury chalets in Al Khiran, Kuwait. Premium private chalets with pools, beach access, and modern amenities.",
+    creator: "@ritualsq8",
   },
   robots: "index, follow",
   other: {
