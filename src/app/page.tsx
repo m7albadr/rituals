@@ -1,13 +1,19 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { AppShell } from "@/components/app-shell";
 import { useI18n } from "@/lib/i18n";
 import { FadeIn, SlideIn, StaggerChildren, StaggerItem } from "@/components/motion";
-import { chalets } from "@/lib/data";
-import { ChevronRightIcon } from "@/components/icons";
+import { chalets, getChaletById } from "@/lib/data";
+import {
+  ChevronRightIcon,
+  DirectBookIcon,
+  BeachIcon,
+  HeadsetIcon,
+  FlexibleIcon,
+} from "@/components/icons";
 
 function Hero() {
   const { t } = useI18n();
@@ -104,12 +110,75 @@ function Hero() {
   );
 }
 
+function WhyRitualsSection() {
+  const { t } = useI18n();
+
+  const props = [
+    { icon: DirectBookIcon, key: "noMiddleman" },
+    { icon: BeachIcon, key: "beachAccess" },
+    { icon: HeadsetIcon, key: "support" },
+    { icon: FlexibleIcon, key: "freeCancellation" },
+  ];
+
+  return (
+    <section className="max-w-5xl mx-auto px-6 py-20">
+      <FadeIn className="text-center mb-12">
+        <div className="section-label py-3">
+          <span>{t("whyRituals.title")}</span>
+        </div>
+      </FadeIn>
+
+      <StaggerChildren className="grid grid-cols-2 md:grid-cols-4 gap-6" stagger={0.1}>
+        {props.map(({ icon: Icon, key }) => (
+          <StaggerItem key={key}>
+            <div className="text-center group">
+              <div className="w-14 h-14 mx-auto rounded-full bg-brand-gold/10 border border-brand-gold/20 flex items-center justify-center transition-all group-hover:bg-brand-gold/20 group-hover:border-brand-gold/40 group-hover:shadow-lg group-hover:shadow-brand-gold/10">
+                <Icon className="w-6 h-6 text-brand-gold" />
+              </div>
+              <h3 className="font-serif text-lg text-brand-charcoal dark:text-brand-ivory mt-4">
+                {t(`whyRituals.${key}`)}
+              </h3>
+              <p className="text-xs text-brand-muted dark:text-dark-muted mt-1.5 leading-relaxed">
+                {t(`whyRituals.${key}Desc`)}
+              </p>
+            </div>
+          </StaggerItem>
+        ))}
+      </StaggerChildren>
+    </section>
+  );
+}
+
+function ImageWithSkeleton({ src, alt, className }: { src: string; alt: string; className: string }) {
+  const [loaded, setLoaded] = useState(false);
+
+  return (
+    <div className="relative w-full h-full">
+      {!loaded && <div className="absolute inset-0 skeleton rounded-2xl" />}
+      <img
+        src={src}
+        alt={alt}
+        className={`${className} ${loaded ? "opacity-100" : "opacity-0"} transition-opacity duration-500`}
+        onLoad={() => setLoaded(true)}
+      />
+    </div>
+  );
+}
+
 function ChaletCard({ chalet, index }: { chalet: (typeof chalets)[0]; index: number }) {
   const { locale, t } = useI18n();
   const name = locale === "ar" ? chalet.nameAr : chalet.name;
   const address = locale === "ar" ? chalet.addressAr : chalet.address;
   const currency = t("chalet.currency");
   const isFeatured = index === 0;
+
+  const badge = chalet.amenities.includes("beach")
+    ? t("badges.beachfront")
+    : chalet.amenities.includes("jacuzzi")
+    ? t("badges.jacuzzi")
+    : null;
+
+  const hasWeekdaySaving = chalet.pricing.some((p) => !p.isBundle && p.rate < (chalet.pricing.find((pp) => pp.isBundle)?.rate ?? Infinity));
 
   return (
     <StaggerItem>
@@ -122,8 +191,8 @@ function ChaletCard({ chalet, index }: { chalet: (typeof chalets)[0]; index: num
             isFeatured ? "aspect-[4/5] md:aspect-[3/4]" : "aspect-[4/5] md:aspect-square"
           }`}
         >
-          {/* Image */}
-          <img
+          {/* Image with skeleton */}
+          <ImageWithSkeleton
             src={chalet.images[0]}
             alt={name}
             className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 will-change-transform group-hover:scale-105"
@@ -131,6 +200,13 @@ function ChaletCard({ chalet, index }: { chalet: (typeof chalets)[0]; index: num
 
           {/* Gradient overlay */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+
+          {/* Badge — top left */}
+          {badge && (
+            <div className="absolute top-4 start-4 bg-brand-gold/90 backdrop-blur-sm text-white text-[10px] font-semibold uppercase tracking-wider px-3 py-1.5 rounded-full">
+              {badge}
+            </div>
+          )}
 
           {/* Price badge — frosted glass */}
           <div className="absolute top-4 end-4 bg-white/15 backdrop-blur-xl border border-white/20 rounded-full px-4 py-2">
@@ -150,8 +226,16 @@ function ChaletCard({ chalet, index }: { chalet: (typeof chalets)[0]; index: num
               {chalet.rooms} {t("chalet.rooms")} &middot; {chalet.maxGuests} {t("chalet.guests")}
             </p>
 
+            {/* Weekday savings tag */}
+            {hasWeekdaySaving && (
+              <div className="mt-2 inline-flex items-center gap-1.5 bg-green-500/20 backdrop-blur-sm text-green-300 text-[10px] font-medium px-2.5 py-1 rounded-full">
+                <span className="w-1.5 h-1.5 rounded-full bg-green-400" />
+                {t("badges.weekdaySave")}
+              </div>
+            )}
+
             {/* View details — appears on hover */}
-            <div className="mt-4 overflow-hidden">
+            <div className="mt-3 overflow-hidden">
               <div className="flex items-center gap-1.5 text-brand-gold text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                 <span>{t("hero.viewDetails")}</span>
                 <motion.span
@@ -217,11 +301,68 @@ function ChaletsSection() {
   );
 }
 
+function RecentlyViewedSection() {
+  const { t, locale } = useI18n();
+  const [viewedChalets, setViewedChalets] = useState<typeof chalets>([]);
+
+  useEffect(() => {
+    try {
+      const ids: string[] = JSON.parse(localStorage.getItem("recentlyViewed") || "[]");
+      const viewed = ids.map((id) => getChaletById(id)).filter(Boolean) as typeof chalets;
+      setViewedChalets(viewed);
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  if (viewedChalets.length === 0) return null;
+
+  return (
+    <section className="max-w-6xl mx-auto px-6 pb-20">
+      <FadeIn>
+        <div className="section-label py-3 mb-8">
+          <span>{t("recentlyViewed.title")}</span>
+        </div>
+        <div className="flex gap-4 overflow-x-auto scrollbar-hide snap-x snap-mandatory pb-2">
+          {viewedChalets.map((chalet) => {
+            const name = locale === "ar" ? chalet.nameAr : chalet.name;
+            const currency = t("chalet.currency");
+            return (
+              <Link
+                key={chalet.id}
+                href={`/chalet/${chalet.id}`}
+                className="snap-start shrink-0 w-60 group"
+              >
+                <div className="relative h-40 rounded-xl overflow-hidden">
+                  <img
+                    src={chalet.images[0]}
+                    alt={name}
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                  <div className="absolute bottom-3 start-3">
+                    <p className="font-serif text-base text-white">{name}</p>
+                    <p className="text-[11px] text-white/60 mt-0.5">
+                      {chalet.basePrice} {currency} {t("chalet.perNight")}
+                    </p>
+                  </div>
+                </div>
+              </Link>
+            );
+          })}
+        </div>
+      </FadeIn>
+    </section>
+  );
+}
+
 function HomePage() {
   return (
     <>
       <Hero />
+      <WhyRitualsSection />
       <ChaletsSection />
+      <RecentlyViewedSection />
     </>
   );
 }

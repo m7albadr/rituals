@@ -174,6 +174,31 @@ const en: Translations = {
     stay: "Stay Duration",
     rental: "Rental Mode",
   },
+  whyRituals: {
+    title: "Why Rituals",
+    noMiddleman: "Book Direct",
+    noMiddlemanDesc: "No agents, no fees \u2014 book directly with the owner",
+    beachAccess: "Beachfront Living",
+    beachAccessDesc: "Step out your door and onto the sand",
+    support: "24/7 Concierge",
+    supportDesc: "WhatsApp support before, during & after your stay",
+    freeCancellation: "Flexible Booking",
+    freeCancellationDesc: "Free cancellation up to 5 days before check-in",
+  },
+  share: {
+    linkCopied: "Link copied to clipboard",
+  },
+  recentlyViewed: {
+    title: "Recently Viewed",
+  },
+  badges: {
+    beachfront: "Beachfront",
+    jacuzzi: "Jacuzzi",
+    weekdaySave: "Weekday savings",
+  },
+  guestCount: {
+    guests: "Guests",
+  },
 };
 
 const ar: Translations = {
@@ -341,6 +366,31 @@ const ar: Translations = {
     capacity: "\u0627\u0644\u0633\u0639\u0629",
     stay: "\u0645\u062F\u0629 \u0627\u0644\u0625\u0642\u0627\u0645\u0629",
     rental: "\u0646\u0645\u0637 \u0627\u0644\u0625\u064A\u062C\u0627\u0631",
+  },
+  whyRituals: {
+    title: "\u0644\u0645\u0627\u0630\u0627 \u0631\u064A\u062A\u0648\u0627\u0644\u0632",
+    noMiddleman: "\u0627\u062D\u062C\u0632 \u0645\u0628\u0627\u0634\u0631\u0629",
+    noMiddlemanDesc: "\u0628\u062F\u0648\u0646 \u0648\u0633\u0637\u0627\u0621\u060C \u0628\u062F\u0648\u0646 \u0631\u0633\u0648\u0645 \u2014 \u0627\u062D\u062C\u0632 \u0645\u0628\u0627\u0634\u0631\u0629 \u0645\u0639 \u0627\u0644\u0645\u0627\u0644\u0643",
+    beachAccess: "\u0639\u0644\u0649 \u0627\u0644\u0628\u062D\u0631 \u0645\u0628\u0627\u0634\u0631\u0629",
+    beachAccessDesc: "\u0627\u062E\u0631\u062C \u0645\u0646 \u0628\u0627\u0628\u0643 \u0645\u0628\u0627\u0634\u0631\u0629 \u0625\u0644\u0649 \u0627\u0644\u0631\u0645\u0627\u0644",
+    support: "\u062F\u0639\u0645 \u0645\u062A\u0648\u0627\u0635\u0644",
+    supportDesc: "\u062A\u0648\u0627\u0635\u0644 \u0639\u0628\u0631 \u0627\u0644\u0648\u0627\u062A\u0633\u0627\u0628 \u0642\u0628\u0644 \u0648\u0623\u062B\u0646\u0627\u0621 \u0648\u0628\u0639\u062F \u0625\u0642\u0627\u0645\u062A\u0643",
+    freeCancellation: "\u062D\u062C\u0632 \u0645\u0631\u0646",
+    freeCancellationDesc: "\u0625\u0644\u063A\u0627\u0621 \u0645\u062C\u0627\u0646\u064A \u0642\u0628\u0644 5 \u0623\u064A\u0627\u0645 \u0645\u0646 \u062A\u0633\u062C\u064A\u0644 \u0627\u0644\u062F\u062E\u0648\u0644",
+  },
+  share: {
+    linkCopied: "\u062A\u0645 \u0646\u0633\u062E \u0627\u0644\u0631\u0627\u0628\u0637",
+  },
+  recentlyViewed: {
+    title: "\u0634\u0648\u0647\u062F \u0645\u0624\u062E\u0631\u0627\u064B",
+  },
+  badges: {
+    beachfront: "\u0639\u0644\u0649 \u0627\u0644\u0628\u062D\u0631",
+    jacuzzi: "\u062C\u0627\u0643\u0648\u0632\u064A",
+    weekdaySave: "\u0648\u0641\u0651\u0631 \u0641\u064A \u0623\u064A\u0627\u0645 \u0627\u0644\u0623\u0633\u0628\u0648\u0639",
+  },
+  guestCount: {
+    guests: "\u0627\u0644\u0636\u064A\u0648\u0641",
   },
 };
 

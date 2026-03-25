@@ -7,6 +7,7 @@ import { ToastProvider } from "./toast";
 import { Header } from "./header";
 import { Footer } from "./footer";
 import { SplashScreen } from "./splash-screen";
+import { PageTransition } from "./motion";
 
 function DirectionManager({ children }: { children: React.ReactNode }) {
   const { locale, dir } = useI18n();
@@ -36,7 +37,9 @@ export function AppShell({ children, transparentHeader = false }: { children: Re
     <Providers>
       <SplashScreen>
         <Header transparent={transparentHeader} />
-        <main id="main-content" className="flex-1">{children}</main>
+        <PageTransition>
+          <main id="main-content" className="flex-1">{children}</main>
+        </PageTransition>
         <Footer />
       </SplashScreen>
     </Providers>

@@ -10,6 +10,7 @@ import { getChaletById } from "@/lib/data";
 import { calculateStay, formatDate } from "@/lib/pricing";
 import { Calendar } from "@/components/calendar";
 import { Lightbox } from "@/components/lightbox";
+import { useToast } from "@/components/toast";
 import { FadeIn, StaggerChildren, StaggerItem, motion, AnimatePresence } from "@/components/motion";
 import {
   ChevronLeftIcon,
@@ -20,6 +21,8 @@ import {
   UsersIcon,
   WifiIcon,
   PoolIcon,
+  MinusIcon,
+  PlusIcon,
   getAmenityIcon,
   getRuleIcon,
 } from "@/components/icons";
@@ -31,7 +34,20 @@ const policyColors: Record<string, { bg: string; border: string; text: string; d
   info: { bg: "bg-blue-50 dark:bg-blue-900/20", border: "border-blue-200 dark:border-blue-800", text: "text-blue-700 dark:text-blue-400", dot: "bg-blue-500" },
 };
 
-/* ── Mobile Carousel ─────────────────────────────────────────── */
+/* ── Track recently viewed ────────────────────────────────── */
+function useTrackViewed(id: string) {
+  useEffect(() => {
+    try {
+      const stored: string[] = JSON.parse(localStorage.getItem("recentlyViewed") || "[]");
+      const updated = [id, ...stored.filter((x) => x !== id)].slice(0, 10);
+      localStorage.setItem("recentlyViewed", JSON.stringify(updated));
+    } catch {
+      // ignore
+    }
+  }, [id]);
+}
+
+/* ── Mobile Carousel with counter ─────────────────────────── */
 function MobileCarousel({ images, onOpen }: { images: string[]; onOpen: (i: number) => void }) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState(0);
@@ -70,6 +86,10 @@ function MobileCarousel({ images, onOpen }: { images: string[]; onOpen: (i: numb
             />
           </button>
         ))}
+      </div>
+      {/* Image counter */}
+      <div className="absolute bottom-3 end-4 bg-black/50 backdrop-blur-sm text-white text-[11px] font-medium px-3 py-1.5 rounded-full">
+        {active + 1} / {images.length}
       </div>
       {/* Dot indicators */}
       <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
@@ -126,15 +146,50 @@ function DesktopGallery({ images, onOpen, t }: { images: string[]; onOpen: (i: n
         ))}
       </div>
 
-      {/* "Show all photos" button */}
-      {images.length > 3 && (
+      {/* Image counter + "Show all photos" button */}
+      <div className="absolute bottom-4 end-4 flex items-center gap-2">
+        <span className="bg-black/50 backdrop-blur-sm text-white text-[11px] font-medium px-3 py-2 rounded-full">
+          1 / {images.length}
+        </span>
+        {images.length > 3 && (
+          <button
+            onClick={() => onOpen(0)}
+            className="bg-white/90 dark:bg-dark-card/90 backdrop-blur-sm text-brand-charcoal dark:text-brand-ivory text-xs font-medium px-4 py-2.5 rounded-full border border-brand-border dark:border-dark-border hover:bg-white dark:hover:bg-dark-card transition-colors shadow-sm"
+          >
+            {t("chalet.allPhotos")}
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ── Guest count selector ──────────────────────────────────── */
+function GuestSelector({ max, value, onChange }: { max: number; value: number; onChange: (v: number) => void }) {
+  const { t } = useI18n();
+  return (
+    <div className="flex items-center justify-between bg-white dark:bg-dark-card border border-brand-border dark:border-dark-border rounded-xl px-4 py-3">
+      <div>
+        <p className="text-sm font-medium text-brand-charcoal dark:text-brand-ivory">{t("guestCount.guests")}</p>
+        <p className="text-[10px] text-brand-muted dark:text-dark-muted">{t("chalet.maxGuests", { count: max })}</p>
+      </div>
+      <div className="flex items-center gap-3">
         <button
-          onClick={() => onOpen(0)}
-          className="absolute bottom-4 end-4 bg-white/90 dark:bg-dark-card/90 backdrop-blur-sm text-brand-charcoal dark:text-brand-ivory text-xs font-medium px-4 py-2.5 rounded-full border border-brand-border dark:border-dark-border hover:bg-white dark:hover:bg-dark-card transition-colors shadow-sm"
+          onClick={() => onChange(Math.max(1, value - 1))}
+          disabled={value <= 1}
+          className="w-8 h-8 rounded-full border border-brand-border dark:border-dark-border flex items-center justify-center disabled:opacity-30 hover:border-brand-gold transition-colors"
         >
-          {t("chalet.allPhotos")}
+          <MinusIcon className="w-4 h-4 text-brand-charcoal dark:text-brand-ivory" />
         </button>
-      )}
+        <span className="w-6 text-center font-serif text-lg text-brand-charcoal dark:text-brand-ivory">{value}</span>
+        <button
+          onClick={() => onChange(Math.min(max, value + 1))}
+          disabled={value >= max}
+          className="w-8 h-8 rounded-full border border-brand-border dark:border-dark-border flex items-center justify-center disabled:opacity-30 hover:border-brand-gold transition-colors"
+        >
+          <PlusIcon className="w-4 h-4 text-brand-charcoal dark:text-brand-ivory" />
+        </button>
+      </div>
     </div>
   );
 }
@@ -142,11 +197,15 @@ function DesktopGallery({ images, onOpen, t }: { images: string[]; onOpen: (i: n
 function ChaletDetailContent({ id }: { id: string }) {
   const { locale, t, toggleLocale } = useI18n();
   const router = useRouter();
+  const { showToast } = useToast();
   const chalet = getChaletById(id);
   const [checkIn, setCheckIn] = useState<Date | null>(null);
   const [checkOut, setCheckOut] = useState<Date | null>(null);
+  const [guestCount, setGuestCount] = useState(1);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [expandedRule, setExpandedRule] = useState<string | null>(null);
+
+  useTrackViewed(id);
 
   if (!chalet) {
     return <div className="flex items-center justify-center min-h-[60vh]"><p className="text-brand-muted">Chalet not found</p></div>;
@@ -174,15 +233,24 @@ function ChaletDetailContent({ id }: { id: string }) {
 
   const handleContinue = () => {
     if (!checkIn || !checkOut) return;
-    const params = new URLSearchParams({ checkIn: checkIn.toISOString(), checkOut: checkOut.toISOString() });
+    const params = new URLSearchParams({
+      checkIn: checkIn.toISOString(),
+      checkOut: checkOut.toISOString(),
+      guests: String(guestCount),
+    });
     router.push(`/checkout/${chalet.id}?${params.toString()}`);
   };
 
   const handleShare = async () => {
-    if (navigator.share) {
-      await navigator.share({ title: `Rituals - ${name}`, url: window.location.href });
-    } else {
-      await navigator.clipboard.writeText(window.location.href);
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: `Rituals - ${name}`, url: window.location.href });
+      } else {
+        await navigator.clipboard.writeText(window.location.href);
+        showToast(t("share.linkCopied"));
+      }
+    } catch {
+      // user cancelled share
     }
   };
 
@@ -385,31 +453,47 @@ function ChaletDetailContent({ id }: { id: string }) {
               </div>
             </FadeIn>
 
-            {/* Location */}
+            {/* Location with Map */}
             <FadeIn className="mt-10">
               <div className="section-label py-3"><span>{t("chalet.location")}</span></div>
-              <a
-                href={chalet.mapsUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-4 block bg-white dark:bg-dark-card border border-brand-border dark:border-dark-border rounded-xl p-5 hover:shadow-md transition-shadow group"
-              >
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-full bg-brand-gold/10 flex items-center justify-center shrink-0">
-                    <MapPinIcon className="w-5 h-5 text-brand-gold" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-brand-charcoal dark:text-brand-ivory">{address}</p>
-                    <p className="text-xs text-brand-gold mt-0.5 group-hover:underline">{t("chalet.openInMaps")}</p>
-                  </div>
-                  <ChevronLeftIcon className="w-4 h-4 text-brand-muted -rotate-180" />
+              <div className="mt-4 rounded-xl overflow-hidden border border-brand-border dark:border-dark-border">
+                <div className="h-[200px] bg-brand-border dark:bg-dark-border">
+                  <iframe
+                    src="https://www.google.com/maps?q=Al+Khiran,+Kuwait&z=13&output=embed"
+                    className="w-full h-full border-0"
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                    title="Chalet location"
+                  />
                 </div>
-              </a>
+                <a
+                  href={chalet.mapsUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block bg-white dark:bg-dark-card p-4 hover:bg-brand-cream dark:hover:bg-dark-border/50 transition-colors group"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-full bg-brand-gold/10 flex items-center justify-center shrink-0">
+                      <MapPinIcon className="w-4 h-4 text-brand-gold" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-brand-charcoal dark:text-brand-ivory">{address}</p>
+                      <p className="text-xs text-brand-gold mt-0.5 group-hover:underline">{t("chalet.openInMaps")}</p>
+                    </div>
+                    <ChevronLeftIcon className="w-4 h-4 text-brand-muted -rotate-180" />
+                  </div>
+                </a>
+              </div>
             </FadeIn>
 
             {/* Calendar — mobile only shows here */}
             <FadeIn className="mt-10 md:hidden">
               <Calendar chalet={chalet} checkIn={checkIn} checkOut={checkOut} onSelect={handleDateSelect} />
+            </FadeIn>
+
+            {/* Guest selector — mobile only */}
+            <FadeIn className="mt-4 md:hidden">
+              <GuestSelector max={chalet.maxGuests} value={guestCount} onChange={setGuestCount} />
             </FadeIn>
           </div>
 
@@ -424,6 +508,11 @@ function ChaletDetailContent({ id }: { id: string }) {
 
                 <div className="mt-6">
                   <Calendar chalet={chalet} checkIn={checkIn} checkOut={checkOut} onSelect={handleDateSelect} />
+                </div>
+
+                {/* Guest selector — desktop */}
+                <div className="mt-4">
+                  <GuestSelector max={chalet.maxGuests} value={guestCount} onChange={setGuestCount} />
                 </div>
 
                 {checkIn && checkOut && (
