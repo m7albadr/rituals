@@ -22,8 +22,6 @@ import {
   UsersIcon,
   WifiIcon,
   PoolIcon,
-  MinusIcon,
-  PlusIcon,
   SunIcon,
   MoonIcon,
   getAmenityIcon,
@@ -167,36 +165,6 @@ function DesktopGallery({ images, onOpen, t }: { images: string[]; onOpen: (i: n
   );
 }
 
-/* ── Guest count selector ──────────────────────────────────── */
-function GuestSelector({ max, value, onChange }: { max: number; value: number; onChange: (v: number) => void }) {
-  const { t } = useI18n();
-  return (
-    <div className="flex items-center justify-between bg-white dark:bg-dark-card border border-brand-border dark:border-dark-border rounded-xl px-4 py-3">
-      <div>
-        <p className="text-sm font-medium text-brand-charcoal dark:text-brand-ivory">{t("guestCount.guests")}</p>
-        <p className="text-[10px] text-brand-muted dark:text-dark-muted">{t("chalet.maxGuests", { count: max })}</p>
-      </div>
-      <div className="flex items-center gap-3">
-        <button
-          onClick={() => onChange(Math.max(1, value - 1))}
-          disabled={value <= 1}
-          className="w-8 h-8 rounded-full border border-brand-border dark:border-dark-border flex items-center justify-center disabled:opacity-30 hover:border-brand-gold transition-colors"
-        >
-          <MinusIcon className="w-4 h-4 text-brand-charcoal dark:text-brand-ivory" />
-        </button>
-        <span className="w-6 text-center font-serif text-lg text-brand-charcoal dark:text-brand-ivory">{value}</span>
-        <button
-          onClick={() => onChange(Math.min(max, value + 1))}
-          disabled={value >= max}
-          className="w-8 h-8 rounded-full border border-brand-border dark:border-dark-border flex items-center justify-center disabled:opacity-30 hover:border-brand-gold transition-colors"
-        >
-          <PlusIcon className="w-4 h-4 text-brand-charcoal dark:text-brand-ivory" />
-        </button>
-      </div>
-    </div>
-  );
-}
-
 function ChaletDetailContent({ id }: { id: string }) {
   const { locale, t, toggleLocale } = useI18n();
   const { theme, toggleTheme } = useTheme();
@@ -205,7 +173,6 @@ function ChaletDetailContent({ id }: { id: string }) {
   const chalet = getChaletById(id);
   const [checkIn, setCheckIn] = useState<Date | null>(null);
   const [checkOut, setCheckOut] = useState<Date | null>(null);
-  const [guestCount, setGuestCount] = useState(1);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [expandedRule, setExpandedRule] = useState<string | null>(null);
 
@@ -240,7 +207,6 @@ function ChaletDetailContent({ id }: { id: string }) {
     const params = new URLSearchParams({
       checkIn: checkIn.toISOString(),
       checkOut: checkOut.toISOString(),
-      guests: String(guestCount),
     });
     router.push(`/checkout/${chalet.id}?${params.toString()}`);
   };
@@ -498,10 +464,6 @@ function ChaletDetailContent({ id }: { id: string }) {
               <Calendar chalet={chalet} checkIn={checkIn} checkOut={checkOut} onSelect={handleDateSelect} />
             </FadeIn>
 
-            {/* Guest selector — mobile only */}
-            <FadeIn className="mt-4 md:hidden">
-              <GuestSelector max={chalet.maxGuests} value={guestCount} onChange={setGuestCount} />
-            </FadeIn>
           </div>
 
           {/* Right column — sticky booking sidebar (desktop only) */}
@@ -515,11 +477,6 @@ function ChaletDetailContent({ id }: { id: string }) {
 
                 <div className="mt-6">
                   <Calendar chalet={chalet} checkIn={checkIn} checkOut={checkOut} onSelect={handleDateSelect} />
-                </div>
-
-                {/* Guest selector — desktop */}
-                <div className="mt-4">
-                  <GuestSelector max={chalet.maxGuests} value={guestCount} onChange={setGuestCount} />
                 </div>
 
                 {checkIn && checkOut && (
